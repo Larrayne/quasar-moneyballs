@@ -1,0 +1,32 @@
+//draw nav
+.q-drawer{
+    .q-item{
+        opacity: 0.6;
+        &.q-router-link--exact-active{
+            opacity: 1;
+        }
+    }
+}
+
+//number inputs
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button{
+    margin-left: 10px;
+}
+
+:root {
+    --font-size-small: 14px;
+    --font-size-medium: 16px;
+    --font-size-large: 18px;
+    --font-family: Arial, sans-serif;
+  }
+  
+  body {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-size: var(--font-size);
+    font-family: var(--font-family);
+  }
+  
+
