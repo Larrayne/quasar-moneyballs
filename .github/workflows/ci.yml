@@ -26,6 +26,9 @@ jobs:
 
       - name: install dependencies
         run: npm install 
+      
+      - name: Install Quasar CLI
+        run: npm install -g @quasar/cli
 
       - name: Build Quasar app
         run: quasar build 
