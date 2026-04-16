@@ -27,8 +27,14 @@ jobs:
       - name: install dependencies
         run: npm install 
       
-      - name: Install Quasar CLI
-        run: npm install -g @quasar/cli
+      - name: Build Quasar app
+        run: npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: quasar-build
+          path: dist
 
       - name: Build Quasar app
         run: quasar build 
