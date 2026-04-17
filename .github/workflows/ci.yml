@@ -42,7 +42,7 @@ jobs:
           echo "Site ID is set: ${NETLIFY_SITE_ID:+YES}"
 
       - name: Deploy to Netlify
-        run: npx netlify-cli deploy --prod --dir=dist/spa --auth $NETLIFY_AUTH_TOKEN --site $NETLIFY_SITE_ID --message "GitHub Actions Deploy"
+        run: npx netlify-cli deploy --prod --dir=dist/spa --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID --message="GitHub Actions Deploy"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
