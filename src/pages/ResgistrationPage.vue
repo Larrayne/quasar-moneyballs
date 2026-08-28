@@ -75,8 +75,8 @@
 
         <q-btn 
           
-          label="Sign in with Google" 
-          @click="signInWithGoogle" 
+          label="Google Sign-In Unavailable" 
+          @click="notifyGoogleUnavailable" 
           color="secondary" 
           round
           unelevated
@@ -161,11 +161,15 @@
 
 
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { useAuth } from 'src/composables/useAuth';
+import { saveUserSettings } from 'src/composables/useUserPreferences';
+import { authReady, updateProfile, user } from 'src/firebase/firebase';
 import { useRouter } from 'vue-router';
 
-const { registerUser, loginUser, logout, resetPassword, isAuthenticated } = useAuth();
+const { registerUser } = useAuth();
+const $q = useQuasar();
 const router = useRouter();
 
 const name = ref('');
@@ -184,13 +188,40 @@ const passwordRule = (val) =>
 
 
 
-  const handleRegister = async () => {
+onMounted(async () => {
+  await authReady;
+  if (user.value) {
+    router.replace('/entries');
+  }
+});
+
+const handleRegister = async () => {
   try {
-    await registerUser(email.value, password.value);
+    const registeredUser = await registerUser(email.value, password.value);
+    const displayName = [name.value, surname.value].map((value) => value.trim()).filter(Boolean).join(' ') || nickname.value.trim();
+
+    if (displayName) {
+      await updateProfile(registeredUser, { displayName });
+    }
+
+    await saveUserSettings(registeredUser.uid, {
+      displayName,
+      name: name.value.trim(),
+      nickname: nickname.value.trim(),
+      surname: surname.value.trim(),
+      dob: dob.value,
+    });
+
+    $q.notify({ color: 'positive', message: 'Registration successful. Verify your email before logging in.', position: 'top' });
     router.push('/registrationsuccess');
   } catch (error) {
     console.error("Registration error:", error.message);
+    $q.notify({ color: 'negative', message: error.message || 'Unable to register.', position: 'top' });
   }
+};
+
+const notifyGoogleUnavailable = () => {
+  $q.notify({ color: 'warning', message: 'Google sign-in is not configured yet.', position: 'top' });
 };
 
 

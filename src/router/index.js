@@ -1,7 +1,7 @@
 import { route } from 'quasar/wrappers';
 import { createRouter, createMemoryHistory, createWebHistory, createWebHashHistory } from 'vue-router';
 import routes from './routes';
-import { useAuth } from 'src/composables/useAuth'; // Adjust path as needed
+import { auth, authReady } from 'src/firebase/firebase';
 
 export default route(function (/* { store, ssrContext } */) {
   const createHistory = process.env.SERVER ? createMemoryHistory : (process.env.VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
@@ -11,16 +11,20 @@ export default route(function (/* { store, ssrContext } */) {
     history: createHistory(process.env.VUE_ROUTER_BASE)
   });
 
-  
+    Router.beforeEach(async (to) => {
+      if (!to.meta.requiresAuth) {
+        return true;
+      }
 
-  // Route Guard
-  Router.beforeEach((to, from, next) => {
-    const { isAuthenticated } = useAuth(); // Check if user is authenticated
-    if (to.meta.requiresAuth && !isAuthenticated()) {
-      next('/login'); // Redirect unauthenticated users to login
-    } else {
-      next(); // Proceed if authenticated or no auth required
-    }
+      await authReady;
+      if (!auth.currentUser) {
+        return {
+          path: '/login',
+          query: { redirect: to.fullPath }
+        };
+      }
+
+      return true;
   });
 
   return Router;

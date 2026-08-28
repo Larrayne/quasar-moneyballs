@@ -19,14 +19,30 @@ input::-webkit-inner-spin-button{
     --font-size-small: 14px;
     --font-size-medium: 16px;
     --font-size-large: 18px;
-    --font-family: Arial, sans-serif;
+    --primary-bg: #fff8fb;
+    --primary-text: #2f1c27;
+    --accent-color: #d85b93;
+    --page-gradient-start: #fffaf8;
+    --page-gradient-mid: #fff3ee;
+    --page-gradient-end: #fff8fb;
+    --font-size: 16px;
+    --font-family: Georgia, 'Times New Roman', serif;
   }
   
   body {
+    min-height: 100vh;
     background-color: var(--primary-bg);
+    background-image:
+      radial-gradient(circle at top left, rgba(255, 255, 255, 0.22), transparent 24%),
+      linear-gradient(180deg, var(--page-gradient-start) 0%, var(--page-gradient-mid) 44%, var(--page-gradient-end) 100%);
     color: var(--primary-text);
     font-size: var(--font-size);
     font-family: var(--font-family);
+    transition: background-color 0.25s ease, color 0.25s ease, background-image 0.3s ease;
   }
+
+    .text-primary {
+        color: var(--accent-color) !important;
+    }
   
 

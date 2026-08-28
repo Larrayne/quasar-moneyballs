@@ -68,7 +68,15 @@ module.exports = configure(function (/* ctx */) {
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      extendViteConf (viteConf) {
+        viteConf.build = viteConf.build || {};
+        viteConf.build.rollupOptions = viteConf.build.rollupOptions || {};
+        viteConf.build.rollupOptions.output = viteConf.build.rollupOptions.output || {};
+        viteConf.build.rollupOptions.output.manualChunks = {
+          firebase: ['firebase/app', 'firebase/auth', 'firebase/firestore', 'firebase/storage'],
+          vue: ['vue', 'vue-router', 'pinia']
+        };
+      },
       // viteVuePluginOptions: {},
 
       

@@ -1,21 +1,23 @@
-// Import required Firebase methods and modules
 import { nextTick } from 'vue';
-import {auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, sendPasswordResetEmail } from 'src/firebase/firebase'; 
-import { sendEmailVerification } from 'firebase/auth';
-
-
-// Get Firebase authentication instance
-// const auth = getAuth();
+import {
+  auth,
+  createUserWithEmailAndPassword,
+  deleteUser,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  sendEmailVerification,
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+  signOut,
+  updatePassword,
+} from 'src/firebase/firebase';
 
 // Register user function
 function registerUser(email, password) {
   return createUserWithEmailAndPassword(auth, email, password)
     .then((userCredential) => {
       const user = userCredential.user;
-      sendEmailVerification(user).then(() => {
-        console.log("Verification email sent to:", user.email);
-      });
-      console.log("User registered:", user);
+      return sendEmailVerification(user).then(() => user);
     })
     .catch((error) => {
       const errorCode = error.code;
@@ -37,7 +39,6 @@ function loginUser(email, password) {
       if (!user.emailVerified) {
         throw new Error("Please verify your email before logging in.");
       }
-      console.log("User logged in:", user);
       return user;
     })
     .catch((error) => {
@@ -63,10 +64,7 @@ const logout = async (router) => {
 // Password reset function
 const resetPassword = async (email) => {
     try {
-        const user = auth.currentUser;
-        if (user && user.email === email) {
-            await sendPasswordResetEmail(auth, email);
-        }
+    await sendPasswordResetEmail(auth, email);
     } catch (error) {
         console.error("Password reset error:", error.message);
         throw new Error(error.message);
@@ -78,26 +76,42 @@ const isAuthenticated = () => {
   return !!auth.currentUser;
 };
 
-const changePassword = async () => {
+const changePassword = async (currentPassword, newPassword) => {
   try {
-    await changeUserPassword(newPassword.value);
-    alert('Password changed successfully');
+    const currentUser = auth.currentUser;
+    if (!currentUser || !currentUser.email) {
+      throw new Error('User not authenticated.');
+    }
+
+    const credential = EmailAuthProvider.credential(currentUser.email, currentPassword);
+    await reauthenticateWithCredential(currentUser, credential);
+    await updatePassword(currentUser, newPassword);
   } catch (error) {
-    console.error(error);
-    alert('Error changing password');
+    console.error('Error changing password', error.message);
+    throw new Error(error.message || 'Error changing password');
   }
 };
 
 const toggle2FA = async () => {
+  throw new Error('Two-factor authentication is not configured for this project yet.');
+};
+
+const deleteUserAccount = async () => {
   try {
-    await enableTwoFactorAuth(twoFactorEnabled.value);
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      throw new Error('User not authenticated.');
+    }
+
+    await deleteUser(currentUser);
   } catch (error) {
-    console.error(error);
+    console.error('Error deleting account', error.message);
+    throw new Error(error.message || 'Error deleting account');
   }
 };
 
 
 // Export the functions in an object
 export const useAuth = () => {
-    return { toggle2FA,changePassword,registerUser, loginUser, logout, resetPassword, isAuthenticated };
+  return { toggle2FA, changePassword, deleteUserAccount, registerUser, loginUser, logout, resetPassword, isAuthenticated };
 };

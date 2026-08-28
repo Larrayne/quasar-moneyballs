@@ -1,13 +1,24 @@
 <script setup>
-  import { ref } from 'vue';
+  import { onMounted, ref } from 'vue';
+  import { useQuasar } from 'quasar';
   import {useAuth} from 'src/composables/useAuth';
-  import { useRouter } from 'vue-router';
+  import { authReady, user } from 'src/firebase/firebase';
+  import { useRoute, useRouter } from 'vue-router';
   
   const { loginUser } = useAuth();
+  const $q = useQuasar();
+  const route = useRoute();
   const router = useRouter();
   
   const email = ref('');
   const password = ref('');
+
+  onMounted(async () => {
+    await authReady;
+    if (user.value) {
+      router.replace('/entries');
+    }
+  });
 
   const emailRule = (val) => /\S+@\S+\.\S+/.test(val) || 'Email must be a valid address';
 
@@ -19,10 +30,12 @@
  const handleLogin = async () => {
   try {
     await loginUser(email.value, password.value);
-    router.push('/entries');
+    $q.notify({ color: 'positive', message: 'Login successful.', position: 'top' });
+    const redirectTarget = typeof route.query.redirect === 'string' ? route.query.redirect : '/entries';
+    router.push(redirectTarget);
   } catch (error) {
     console.error("Login error:", error.message);
-    alert(error.message); // Or handle this more gracefully in the UI
+    $q.notify({ color: 'negative', message: error.message || 'Unable to sign in.', position: 'top' });
   }
 };
   const goToPasswordReset = () => {

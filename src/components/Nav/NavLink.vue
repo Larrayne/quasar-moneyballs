@@ -1,7 +1,7 @@
 <template>
   <q-item
     clickable
-    class="text-pink"
+    class="nav-link"
     tag="a"
     
     :to="props.link && !props.action ? props.link : null" 
@@ -57,10 +57,16 @@ const props = defineProps({
 
 
 
-function handleClick(event) {
-  if (props.action) {
-    event.preventDefault();  // Prevent default navigation if there's an action
-    props.action();          // Call the action function if provided
-  }
-}
 </script>
+
+<style scoped>
+.nav-link {
+  margin: 6px 12px;
+  border-radius: 14px;
+  color: #51382b;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.52);
+}
+</style>
